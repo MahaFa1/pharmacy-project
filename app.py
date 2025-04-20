@@ -11,9 +11,6 @@ app = Flask(__name__, static_folder='public', static_url_path='')
 
 # إعداد OpenAI API – استبدل المفتاح بمفتاحك الخاص
 
-#import config
-openai.api_key = config.OPENAI_API_KEY
-ELEVENLABS_API_KEY = config.ELEVENLABS_API_KEY
 # إعدادات قاعدة البيانات MySQL
 db_config = {
     'host': 'localhost',
