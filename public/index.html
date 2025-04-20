@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmeXa</title>
+  <link rel="shortcut icon" href="logo.png" type="image/png">
+  <meta name="description" content="PharmeXa - your smart assistant for drug information and guidance.">
+  <meta name="author" content="Maha Faleh Alqahtani">
+  <meta name="keywords" content="pharmacy, ai, chatbot, drug info, PharmeXa">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <script src="https://code.responsivevoice.org/responsivevoice.js?key=zpoKLoMC"></script>
+  <style>
+    :root {
+      --bg-color: #181818;
+      --text-color: #f1f1f1;
+      --container-bg: rgba(40, 40, 40, 0.95);
+      --container-border: 1px solid rgba(255, 255, 255, 0.15);
+      --button-bg: rgba(255, 255, 255, 0.1);
+      --button-hover-bg: rgba(255, 255, 255, 0.2);
+      --input-border: rgba(255, 255, 255, 0.2);
+      --input-bg: rgba(255, 255, 255, 0.05);
+      --submit-bg: #16a085;
+      --submit-hover-bg: #1abc9c;
+      --gradient: linear-gradient(45deg, #2980b9, #8e44ad, #f39c12, #16a085);
+    }
+    [data-theme="light"] {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --container-bg: rgba(255, 255, 255, 0.85);
+      --container-border: 1px solid rgba(0, 0, 0, 0.1);
+      --button-bg: rgba(0, 0, 0, 0.1);
+      --button-hover-bg: rgba(0, 0, 0, 0.2);
+      --input-border: rgba(0, 0, 0, 0.2);
+      --input-bg: rgba(0, 0, 0, 0.05);
+      --submit-bg: #16a085;
+      --submit-hover-bg: #1abc9c;
+      --gradient: linear-gradient(45deg, #16a085, #f39c12, #8e44ad, #2980b9);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      overflow-y: auto;
+    }
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--gradient);
+      background-size: 400% 400%;
+      animation: backgroundMove 30s ease infinite;
+      z-index: 0;
+    }
+    @keyframes backgroundMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 30px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .main-content {
+      background: var(--container-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      border: var(--container-border);
+      padding: 40px;
+      width: 100%;
+      max-width: 800px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+      z-index: 2;
+      position: relative;
+    }
+    .switches {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    .switches button, .logo-container button {
+      border: none;
+      background: var(--button-bg);
+      color: var(--text-color);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      font-size: 1.2rem;
+    }
+    .switches button:hover, .logo-container button:hover {
+      background: var(--button-hover-bg);
+    }
+    .header-text {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      font-weight: bold;
+      color: var(--text-color);
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+    }
+    .instructions {
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+      opacity: 0.9;
+    }
+    .output-text {
+      font-size: 1.3rem;
+      padding: 25px;
+      margin-bottom: 15px;
+      background: var(--input-bg);
+      border-radius: 10px;
+      min-height: 100px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      position: relative;
+    }
+    .loader {
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top: 4px solid #1abc9c;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    button.control-btn {
+      border: none;
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      background: var(--button-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button.control-btn:hover {
+      background: var(--button-hover-bg);
+      transform: scale(1.05);
+    }
+    button.control-btn:active {
+      transform: scale(0.95);
+    }
+    button.control-btn i {
+      font-size: 2rem;
+      color: var(--text-color);
+    }
+    .text-input, .text-submit {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    .text-input {
+      border: 2px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text-color);
+    }
+    .text-submit {
+      color: var(--text-color);
+      background-color: var(--submit-bg);
+      border: none;
+    }
+    .text-submit:hover {
+      background-color: var(--submit-hover-bg);
+    }
+    .logo-container {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-container img {
+      width: 80px;
+      height: auto;
+    }
+.recording {
+  background-color: #e74c3c !important; /* لون أحمر ناعم */
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(231, 76, 60, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+}
+
+/* إعادة الزر إلى حالته العادية بعد إيقاف التسجيل */
+.not-recording {
+  background-color: var(--button-bg) !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+/* زر الكتم بنفس تنسيق المرة الأولى */
+#muteButton {
+  margin-top: 5px;
+  margin-left: auto; /* هذا يخليه على اليمين */
+  align-self: flex-end;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--button-bg);
+  color: var(--text-color);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: background 0.3s ease;
+}
+
+
+#muteButton:hover {
+  background: var(--button-hover-bg);
+}
+
+footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  color: var(--text-color);  /* سيتم تحديث اللون بناءً على الوضع */
+  font-family: 'Roboto', sans-serif;
+  padding-bottom: 20px;
+  line-height: 1.6;
+  position: relative;
+  bottom: 0;
+}
+
+footer a {
+  color: var(--text-color);  /* هذا يتماشى مع النص ويغير اللون مع الوضع */
+  text-decoration: underline;
+}
+
+  </style>
+</head>
+<body>
+  <div class="background"></div>
+  <div class="logo-container">
+    <img src="logo.png" alt="PharmeXa Logo">
+  </div>
+  <div class="chat-container">
+    <div class="main-content">
+      <div class="switches">
+        <button id="themeToggle"><i class="fas fa-moon"></i></button>
+        <button id="langToggle">AR</button>
+      </div>
+      <h1 class="header-text">Talk to Pharmexa!</h1>
+      <div class="instructions">Click the microphone or type your query below.</div>
+      <div class="output-text" id="outputText"></div>
+      <button id="muteButton"><i class="fas fa-volume-up"></i></button>
+      <div id="loader" class="loader" style="display: none;"></div>
+      <div class="controls">
+        <button id="micButton" class="control-btn"><i class="fas fa-microphone"></i></button>
+      </div>      
+      <input type="text" class="text-input" id="textInput" placeholder="Type your query here...">
+      <button class="text-submit" id="textSubmit">Submit</button>
+    </div>
+  </div>
+  <footer>
+    Created with care by <strong>Maha Alqahtani</strong><br>
+    <a href="mailto:mahafalehq@gmail.com"><i class="fas fa-envelope"></i> mahafalehq@gmail.com</a><br>
+    © 2025 PharmeXa. All rights reserved.
+  </footer>
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    const langToggle = document.getElementById('langToggle');
+    const outputText = document.getElementById('outputText');
+    const loader = document.getElementById('loader');
+    const textInput = document.getElementById('textInput');
+    const textSubmit = document.getElementById('textSubmit');
+    const micButton = document.getElementById('micButton');
+    const muteButton = document.getElementById("muteButton");
+
+    let isMuted = false;
+    let lastSpokenText = "";
+    let currentLanguage = "en";
+    let currentTheme = localStorage.getItem('theme') || "dark";
+    document.documentElement.setAttribute("data-theme", currentTheme);
+    themeToggle.innerHTML = currentTheme === "dark" ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+
+    themeToggle.addEventListener('click', () => {
+      currentTheme = currentTheme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", currentTheme);
+      localStorage.setItem("theme", currentTheme);
+      themeToggle.innerHTML = currentTheme === "dark" ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+    });
+
+    langToggle.addEventListener('click', () => {
+      currentLanguage = currentLanguage === "en" ? "ar" : "en";
+      document.documentElement.lang = currentLanguage;
+      document.documentElement.dir = currentLanguage === "ar" ? "rtl" : "ltr";
+      document.querySelector(".header-text").textContent = currentLanguage === "ar" ? "تحدث مع فارميكسا!" : "Talk to Pharmexa!";
+      document.querySelector(".instructions").textContent = currentLanguage === "ar" ? "اضغط على المايكروفون للبدء أو اكتب سؤالك أدناه." : "Click the microphone or type your query below.";
+      textInput.placeholder = currentLanguage === "ar" ? "اكتب سؤالك هنا..." : "Type your query here...";
+      textSubmit.textContent = currentLanguage === "ar" ? "إرسال" : "Submit";
+      langToggle.textContent = currentLanguage === "ar" ? "EN" : "AR";
+    });
+
+    muteButton.addEventListener("click", () => {
+  if (!isMuted) {
+    responsiveVoice.pause(); // يوقف مؤقت
+    isMuted = true;
+    muteButton.innerHTML = '<i class="fas fa-volume-mute"></i>';
+  } else {
+    responsiveVoice.resume(); // يكمل من نفس النقطة
+    isMuted = false;
+    muteButton.innerHTML = '<i class="fas fa-volume-up"></i>';
+  }
+});
+
+    function speakText(text) {
+      lastSpokenText = text;
+      if (!isMuted && responsiveVoice.voiceSupport()) {
+        const voice = currentLanguage === "ar" ? "Arabic Female" : "UK English Female";
+        responsiveVoice.speak(text, voice, { rate: 1, pitch: 1, volume: 1 });
+      }
+    }
+
+    textSubmit.addEventListener("click", () => {
+  const query = textInput.value.trim();
+  if (!query) return;
+  outputText.textContent = "";
+  loader.style.display = "block";
+
+  // ✅ التعديل هنا:
+  if (isMuted) {
+    isMuted = false;
+    muteButton.innerHTML = '<i class="fas fa-volume-up"></i>';
+  }
+
+
+      fetch("/get-answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query })
+      })
+        .then(res => res.json())
+        .then(data => {
+          loader.style.display = "none";
+          if (data.answer) {
+            outputText.textContent = data.answer;
+            speakText(data.answer);
+          } else {
+            outputText.textContent = data.error || "Unexpected error.";
+          }
+        })
+        .catch(err => {
+          loader.style.display = "none";
+          outputText.textContent = currentLanguage === "ar" ? "حدث خطأ أثناء المعالجة." : "An error occurred while processing your request.";
+        });
+    });
+
+    textInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") textSubmit.click();
+    });
+
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.continuous = false;
+
+    micButton.addEventListener("click", () => {
+      recognition.lang = currentLanguage === "ar" ? "ar-SA" : "en-US";
+      recognition.start();
+      micButton.classList.add("recording");
+    });
+
+    recognition.onresult = (event) => {
+      let transcript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript + ' ';
+      }
+      textInput.value = transcript.trim();
+    };
+
+    recognition.onerror = (e) => console.error("Speech error:", e);
+    recognition.onend = () => micButton.classList.remove("recording");
+  </script>
+</body>
+</html>
