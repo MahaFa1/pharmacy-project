@@ -105,12 +105,13 @@ def format_medication_info(med):
         f"Hazard: {hazard_str}"
     )
 
+from openai import OpenAI
+
+client = OpenAI()
+
 def get_answer_from_openai(query):
-    """
-    تستخدم OpenAI API للحصول على إجابة عامة للاستعلام في حالة عدم وجود نتائج في قاعدة البيانات.
-    """
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {
@@ -124,13 +125,12 @@ def get_answer_from_openai(query):
             ],
             max_tokens=150
         )
-        answer = response['choices'][0]['message']['content']
+        answer = response.choices[0].message.content
         return answer
     except Exception as e:
         print("OpenAI API Error:", e)
         return "An error occurred while fetching the answer from OpenAI."
-
-
+        
 @app.route('/get-answer', methods=['POST'])
 def get_answer():
     try:
