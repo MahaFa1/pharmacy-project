@@ -2,7 +2,7 @@ import io
 import requests
 from flask import Flask, request, jsonify, send_from_directory
 import mysql.connector
-from openai
+import openai
 import os
 openai.api_key = os.getenv("OPENAI_API_KEY")
 elevenlabs_api_key = os.getenv("ELEVENLABS_API_KEY")
