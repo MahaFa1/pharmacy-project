@@ -13,11 +13,13 @@ app = Flask(__name__, static_folder='public', static_url_path='')
 
 # إعدادات قاعدة البيانات MySQL
 db_config = {
-    'host': 'localhost',
+    'host': 'nozomi.proxy.rlwy.net',
     'user': 'root',
-    'password': '1234',  # حدّث هذا حسب إعداداتك
-    'database': 'pharmacy_db'
+    'password': 'IfKQkXDNTONZBtEQCYWwWHTqDRdtSnbV',
+    'database': 'railway',
+    'port': 31645
 }
+
 
 def get_db_connection():
     try:
