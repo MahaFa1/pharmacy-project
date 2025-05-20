@@ -2,7 +2,7 @@ import io
 import requests
 from flask import Flask, request, jsonify, send_from_directory
 import mysql.connector
-import openai
+from openai.error import OpenAIError
 import os
 openai.api_key = os.getenv("OPENAI_API_KEY")
 elevenlabs_api_key = os.getenv("ELEVENLABS_API_KEY")
@@ -126,7 +126,7 @@ def get_answer_from_openai(query):
         )
         answer = response['choices'][0]['message']['content']
         return answer
-    except openai.error.OpenAIError as e:
+    except OpenAIError as e:
         print("OpenAI API Error:", e)
         return "An error occurred while fetching the answer from OpenAI."
 
