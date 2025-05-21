@@ -130,7 +130,7 @@ def get_answer_from_openai(query):
     except Exception as e:
         print("OpenAI API Error:", e)
         return "An error occurred while fetching the answer from OpenAI."
-        
+
 @app.route('/get-answer', methods=['POST'])
 def get_answer():
     try:
@@ -140,38 +140,21 @@ def get_answer():
         if not query:
             return jsonify({"error": "No query provided."}), 400
 
-        lowered_query = query.lower()
-
-        # 1. Professional Greeting
-        if lowered_query in ["hello", "hi"]:
-            return jsonify({"answer": "Hello, I'm PharmeXa, your smart assistant for drug information and health guidance. How can I assist you today?"})
-
-        # 2. Asking specifically about medicine
-        if any(keyword in lowered_query for keyword in ["medicine", "drug", "medication"]):
-            return jsonify({"answer": "Which medication would you like to know more about?"})
-
-        # 3. Information about the developer
-        if any(keyword in lowered_query for keyword in ["developer", "who made you", "developed by", "creator"]):
-            return jsonify({"answer": "This chatbot is developed by Maha Faleh Alqahtani, Software Developer."})
-
-        # 4. Enhanced medication search logic
+        # نحاول نبحث أولاً في قاعدة البيانات
         words_in_query = query.split()
         found_medications = []
 
-        # First, check exact matches for each word
         for word in words_in_query:
             exact_results = get_exact_medication_info(word)
             if exact_results:
                 found_medications.extend(exact_results)
 
-        # If no exact matches, check partial matches for each word
         if not found_medications:
             for word in words_in_query:
                 partial_results = get_partial_medication_info(word)
                 if partial_results:
                     found_medications.extend(partial_results)
 
-        # Remove duplicate medications
         unique_medications = {med['name']: med for med in found_medications}.values()
 
         if unique_medications:
@@ -192,7 +175,7 @@ def get_answer():
                 )
                 return jsonify({"answer": f"Multiple medications found:\n\n{options}\n\nPlease specify exactly which one you meant."})
 
-        # 5. If no medication found, use OpenAI for general response
+        # إذا ما وجدنا أي دواء، نرسل السؤال لـ OpenAI
         answer = get_answer_from_openai(query)
         return jsonify({"answer": answer})
 
